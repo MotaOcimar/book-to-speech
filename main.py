@@ -3,22 +3,26 @@ from epubToSsml import *
 
 client = tts.TextToSpeechClient()
 
+ssml_texts = epub_to_ssml("books/Coen.epub")
 
+for filename in ssml_texts:
 
-synthesis_input = tts.SynthesisInput(ssml=process_file("books/index_split_004.html"))
+    synthesis_input = tts.SynthesisInput(ssml=ssml_texts[filename])
 
-voice = tts.VoiceSelectionParams(
-    language_code="pt-BR", name="pt-BR-Wavenet-B"
-)
+    voice = tts.VoiceSelectionParams(
+        language_code="pt-BR"
+        # , name="pt-BR-Wavenet-B"
+    )
 
-audio_config = tts.AudioConfig(
-    audio_encoding=tts.AudioEncoding.MP3
-)
+    audio_config = tts.AudioConfig(
+        audio_encoding=tts.AudioEncoding.MP3
+    )
 
-# response = client.synthesize_speech(
-#     input=synthesis_input, voice=voice, audio_config=audio_config
-# )
+    response = client.synthesize_speech(
+        input=synthesis_input, voice=voice, audio_config=audio_config
+    )
 
-# with open("output.mp3", "wb") as out:
-#     out.write(response.audio_content)
-#     print('Audio content written to file "output.mp3"')
+    out_filename = "./output/" + filename + ".mp3"
+    with open(out_filename, "wb") as out:
+        out.write(response.audio_content)
+        print('Audio content written to file "' + out_filename +'"')

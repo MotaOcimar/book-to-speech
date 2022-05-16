@@ -1,4 +1,9 @@
 from bs4 import BeautifulSoup
+from pathlib import Path
+import zipfile
+import shutil
+import glob
+
 
 
 def tag_handler(element):
@@ -60,10 +65,19 @@ def process_file(filename):
     speak.append(processed_bs)
     out_bs.append(speak)
 
-    print(speak)
     return str(speak)
 
 
-# 1º: unpack epub as zip
+def epub_to_ssml(filename):
+    with zipfile.ZipFile(filename, 'r') as zip_ref:
+        zip_ref.extractall("./tmp/")
 
-# 2º: for each html file, process body
+
+    ssml_texts = {}
+
+    for filename in glob.glob('./tmp/*.html'):
+        ssml_texts[Path(filename).stem] = process_file(filename)
+
+    shutil.rmtree('./tmp/')
+
+    return ssml_texts

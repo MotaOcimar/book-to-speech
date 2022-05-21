@@ -3,6 +3,7 @@ from pathlib import Path
 import zipfile
 import shutil
 import glob
+import tempfile
 
 
 
@@ -68,16 +69,16 @@ def process_file(filename):
     return str(speak)
 
 
-def epub_to_ssml(filename):
-    with zipfile.ZipFile(filename, 'r') as zip_ref:
-        zip_ref.extractall("./tmp/")
-
+def epub_to_ssml(epub_filename):
 
     ssml_texts = {}
 
-    for filename in glob.glob('./tmp/*.html'):
-        ssml_texts[Path(filename).stem] = process_file(filename)
+    with tempfile.TemporaryDirectory() as tmp_dir:
 
-    shutil.rmtree('./tmp/')
+        with zipfile.ZipFile(epub_filename, 'r') as zip_ref:
+            zip_ref.extractall(tmp_dir)
+
+        for html_filename in glob.glob(tmp_dir+'/*.html'):
+            ssml_texts[Path(html_filename).stem] = process_file(html_filename)
 
     return ssml_texts

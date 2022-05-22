@@ -66,7 +66,20 @@ def epub_to_ssml(epub_filename):
         speak_tag.append(processed_bs)
         out_bs.append(speak_tag)
 
-        return str(out_bs)
+        
+        return str(out_bs) if len(out_bs.get_text().strip()) > 0 else None
+
+
+    def rename_filenames(dictionary):
+        sorted_list =  sorted(dictionary.items())
+
+        counter = 0
+        sorted_dict = {}
+        for item in sorted_list:
+            sorted_dict[f'part_{counter:03}'] = item[1]
+            counter += 1
+        
+        return sorted_dict
 
 
     ssml_texts = {}
@@ -77,6 +90,9 @@ def epub_to_ssml(epub_filename):
             zip_ref.extractall(tmp_dir)
 
         for html_filename in glob.glob(tmp_dir+'/*.html'):
-            ssml_texts[Path(html_filename).stem] = process_html(html_filename)
+            ssml = process_html(html_filename)
+            if ssml is not None:
+                ssml_texts[Path(html_filename).stem] = ssml
 
-    return ssml_texts
+
+    return rename_filenames(ssml_texts)
